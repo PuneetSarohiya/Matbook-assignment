@@ -10,12 +10,16 @@ const router = express.Router();
 
 router.post("/new", async (req, res) => {
   try {
+    if (typeof req.body.fields === "string") {
+      req.body.fields = JSON.parse(req.body.fields);
+    }
     const result = await formHelper.addObject(req.body);
-    return setSuccess(res, result.data);
+    return setSuccess(res, result);
   } catch (err) {
-    return setServerError(res, err.message || err);
+    return setServerError(res, err.message);
   }
 });
+
 
 router.get("/:id", async (req, res) => {
   try {

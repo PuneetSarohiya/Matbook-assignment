@@ -1,0 +1,142 @@
+{
+    "formId": "registration_form_1",
+    "title": "Add Submission Details",
+    "description": "Please fill out the form to onboard a new employee",
+    "submitText": "Register",
+    "fields": [
+      {
+        "id": "fullName",
+        "label": "Full Name",
+        "placeholder": "Enter full name",
+        "required": true,
+        "type": "text",
+        "validation": {
+          "minLength": 3,
+          "maxLength": 50
+        },
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68f6"
+        },
+        "options": []
+      },
+      {
+        "id": "email",
+        "label": "Email",
+        "required": true,
+        "type": "email",
+        "validation": {
+          "regex": "^[\\w.-]+@[\\w.-]+\\.\\w+$"
+        },
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68f7"
+        },
+        "options": []
+      },
+      {
+        "id": "age",
+        "label": "Age",
+        "required": true,
+        "type": "number",
+        "validation": {
+          "min": 18,
+          "max": 60
+        },
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68f8"
+        },
+        "options": []
+      },
+      {
+        "id": "gender",
+        "label": "Gender",
+        "required": true,
+        "type": "select",
+        "options": [
+          {
+            "label": "Male",
+            "value": "male"
+          },
+          {
+            "label": "Female",
+            "value": "female"
+          }
+        ],
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68f9"
+        }
+      },
+      {
+        "id": "skills",
+        "label": "Skills",
+        "required": false,
+        "type": "multi-select",
+        "options": [
+          {
+            "label": "JavaScript",
+            "value": "js"
+          },
+          {
+            "label": "Python",
+            "value": "py"
+          },
+          {
+            "label": "Node.js",
+            "value": "node"
+          }
+        ],
+        "validation": {
+          "minSelected": 1,
+          "maxSelected": 3
+        },
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68fa"
+        }
+      },
+      {
+        "id": "dob",
+        "label": "Date of Birth",
+        "required": true,
+        "type": "date",
+        "validation": {
+          "minDate": "1990-01-01",
+          "maxDate": "2010-01-01"
+        },
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68fb"
+        },
+        "options": []
+      },
+      {
+        "id": "bio",
+        "label": "Bio",
+        "placeholder": "Write something about yourself",
+        "required": false,
+        "type": "textarea",
+        "validation": {
+          "minLength": 10,
+          "maxLength": 200
+        },
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68fc"
+        },
+        "options": []
+      },
+      {
+        "id": "newsletter",
+        "label": "Subscribe to Newsletter",
+        "required": false,
+        "type": "switch",
+        "_id": {
+          "$oid": "6929491fcc08796fc70e68fd"
+        },
+        "options": []
+      }
+    ],
+    "createdAt": {
+      "$date": "2025-11-28T07:02:55.720Z"
+    },
+    "updatedAt": {
+      "$date": "2025-11-28T07:02:55.720Z"
+    },
+    "__v": 0
+  }

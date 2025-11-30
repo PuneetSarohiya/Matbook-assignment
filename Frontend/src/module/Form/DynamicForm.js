@@ -14,6 +14,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { showNotification } from "../Constants/Toast";
+import sampleForm from "../Constants/sampleForm.json"
 
 const { TextArea } = Input;
 
@@ -24,6 +25,8 @@ const DynamicForm = ({ formId = "6929491fcc08796fc70e68f5", editData = null, onS
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+
+  const formData = formMeta ? formMeta : sampleForm
 
   useEffect(() => {
     axios
@@ -51,9 +54,9 @@ const DynamicForm = ({ formId = "6929491fcc08796fc70e68f5", editData = null, onS
   }, [editData, form]);
 
   const onFormChange = (_, allValues) => {
-    if (!formMeta) return;
+    if (!formData) return;
 
-    const allFilled = formMeta.result.fields.every((field) => {
+    const allFilled = formData.result.fields.every((field) => {
       const value = allValues[field.id];
 
       if (field.type === "switch") return value === true || value === false;
@@ -128,10 +131,10 @@ const DynamicForm = ({ formId = "6929491fcc08796fc70e68f5", editData = null, onS
     );
   }
 
-  if (!formMeta) return <p>Error loading form.</p>;
+  if (!formData) return <p>Error loading form.</p>;
 
   const getFieldByType = (type) =>
-    formMeta.result.fields.find((f) => f.type === type);
+    formData.result.fields.find((f) => f.type === type);
 
   const nameField = getFieldByType("text");
   const emailField = getFieldByType("email");
@@ -149,7 +152,7 @@ const DynamicForm = ({ formId = "6929491fcc08796fc70e68f5", editData = null, onS
       onFinish={handleSubmit}
       onValuesChange={onFormChange} 
     >
-      <p>{formMeta?.result?.description}</p>
+      <p>{formData?.result?.description}</p>
 
       <Row gutter={16}>
         <Col span={12}>
