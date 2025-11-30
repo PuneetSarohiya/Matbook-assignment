@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Form,
   Input,
@@ -13,24 +14,27 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { showNotification } from "../Constants/Toast";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchSubmissionForm, submissionFormAdd, submissionFormUpdate } from "../Redux/AppAction";
-import { fetchSubmissionFormDetails, fetchloadingState } from "../Redux/AppReducer";
 
 const { TextArea } = Input;
 
-const DynamicForm = ({ formData, editData = null, onSuccess }) => {
+const DynamicForm = ({ formId = "6929491fcc08796fc70e68f5", editData = null, onSuccess }) => {
   const [form] = Form.useForm();
+  const [formMeta, setFormMeta] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
-  const dispatch = useDispatch();
-  // const formData = useSelector(state => fetchSubmissionFormDetails(state))
-  const isLoading = useSelector(state => fetchloadingState(state))
 
-  // useEffect(() => {
-  //   dispatch(fetchSubmissionForm())
-  // }, []);
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/api/form/${formId}`)
+      .then((res) => {
+        setFormMeta(res.data.data);
+        setLoading(false);
+        showNotification("Submissions Form Fetched Successfully", "success");
+      })
+      .catch(() => setLoading(false));
+  }, [formId]);
 
   useEffect(() => {
     if (editData && editData.data) {
@@ -47,9 +51,9 @@ const DynamicForm = ({ formData, editData = null, onSuccess }) => {
   }, [editData, form]);
 
   const onFormChange = (_, allValues) => {
-    if (!formData) return;
+    if (!formMeta) return;
 
-    const allFilled = formData?.result?.fields.every((field) => {
+    const allFilled = formMeta.result.fields.every((field) => {
       const value = allValues[field.id];
 
       if (field.type === "switch") return value === true || value === false;
@@ -69,38 +73,54 @@ const DynamicForm = ({ formData, editData = null, onSuccess }) => {
       formattedData[key] =
         dayjs.isDayjs(values[key]) ? values[key].format("YYYY-MM-DD") : values[key];
     }
+
     if (editData && editData._id) {
-      dispatch(submissionFormUpdate(editData._id))
+      axios
+        .post(`http://localhost:5000/api/submission/${editData._id}/update`, {
+          data: formattedData
+        })
+        .then(() => {
+          showNotification("Submission updated successfully!", "success");
+          onSuccess?.();
+        })
+        .catch(() => showNotification("Update failed", "error"))
+        .finally(() => setSubmitting(false));
+
+      return;
     }
 
-   dispatch(submissionFormAdd(formattedData))
-  .then(() => {
-    form.resetFields();
-    setIsFormValid(false);
-    // setErrors({});
-    onSuccess?.();
-  })
-  .catch((err) => {
-    if (err?.status === 404 || err?.status === 400) {
-      const validationErrors = err.validationErrors || {};
-      // setErrors(validationErrors);
+    axios
+      .post("http://localhost:5000/api/submission/new", {
+        formId,
+        data: formattedData
+      })
+      .then(() => {
+        showNotification("Form submitted successfully!", "success");
+        form.resetFields();
+        setIsFormValid(false);
+        setErrors({});
+        onSuccess?.();
+      })
+      .catch((err) => {
+        if (err.response?.status === 404 || err.response?.status === 400) {
+          const validationErrors = err.response.data?.validationErrors || {};
+          setErrors(validationErrors);
 
-      const fieldErrors = Object.entries(validationErrors).map(([field, error]) => ({
-        name: field,
-        errors: [error]
-      }));
-      form.setFields(fieldErrors);
+          const fieldErrors = Object.entries(validationErrors).map(([field, error]) => ({
+            name: field,
+            errors: [error]
+          }));
+          form.setFields(fieldErrors);
 
-      showNotification("Validation failed", "error");
-    } else {
-      showNotification("Server error occurred", "error");
-    }
-  })
-  .finally(() => setSubmitting(false));
-
+          showNotification("Validation failed","error");
+        } else {
+          showNotification("Server error occurred", "error");
+        }
+      })
+      .finally(() => setSubmitting(false));
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div style={{ textAlign: "center", marginTop: 40 }}>
         <Spin size="large" />
@@ -108,12 +128,10 @@ const DynamicForm = ({ formData, editData = null, onSuccess }) => {
     );
   }
 
-  console.log(formData, "BHAI FORMDATATATTATATATA")
-
-  // if (!formData) return <p>Error loading form.</p>;
+  if (!formMeta) return <p>Error loading form.</p>;
 
   const getFieldByType = (type) =>
-    formData?.result?.fields.find((f) => f.type === type);
+    formMeta.result.fields.find((f) => f.type === type);
 
   const nameField = getFieldByType("text");
   const emailField = getFieldByType("email");
@@ -131,7 +149,7 @@ const DynamicForm = ({ formData, editData = null, onSuccess }) => {
       onFinish={handleSubmit}
       onValuesChange={onFormChange} 
     >
-      <p>{formData?.result?.description}</p>
+      <p>{formMeta?.result?.description}</p>
 
       <Row gutter={16}>
         <Col span={12}>
@@ -192,6 +210,7 @@ const DynamicForm = ({ formData, editData = null, onSuccess }) => {
           <Switch />
         </Form.Item>
       )}
+
       <Button
         type="primary"
         htmlType="submit"

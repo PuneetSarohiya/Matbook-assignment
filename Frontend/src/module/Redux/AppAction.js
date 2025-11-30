@@ -64,9 +64,13 @@ export function fetchSubmissionForm() {
 }
 
 export function submissionFormAdd(data) {
+  let formdata= {
+        formId:FORM_ID,
+        data:data
+  }
   return async (dispatch) => {
     try {
-      const res = await callApi(`api/submission/new`, "post", data);
+      const res = await callApi(`api/submission/new`, "post", formdata);
       if (res.status === "Success") {
         showNotification("Form submitted successfully!", "success");
       } else {
@@ -96,7 +100,7 @@ export function submissionFormUpdate(id) {
 export function submissionRemove(id) {
   return async (dispatch) => {
     try {
-      const res = await callApi(`api/submissions/${id}/remove`, "get");
+      const res = await callApi(`api/submission/${id}/remove`, "get");
       if (res.status === "Success") {
         showNotification("Delete Successfully", "success");
         dispatch(fetchAllSubmissionsDetails({}));
